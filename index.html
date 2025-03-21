@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigateur Guidé - SEO Business Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #4a6cf7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+        }
+        
+        /* Styles pour le navigateur simulé */
+        .browser-simulator {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .browser-toolbar {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+        }
+        
+        .browser-buttons {
+            display: flex;
+            margin-right: 10px;
+        }
+        
+        .browser-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: #ccc;
+        }
+        
+        .browser-address {
+            flex: 1;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 10px;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .browser-content {
+            min-height: 500px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            border: none;
+        }
+        
+        /* Styles pour les tooltips/infobulles */
+        .tooltip {
+            position: absolute;
+            max-width: 300px;
+            background-color: #fffde7;
+            border: 1px solid #ffd54f;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .tooltip-content {
+            line-height: 1.4;
+            color: #555;
+        }
+        
+        .tooltip-top-right {
+            top: 20px;
+            right: 20px;
+        }
+        
+        .tooltip-top-left {
+            top: 20px;
+            left: 20px;
+        }
+        
+        .tooltip-bottom-right {
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        .tooltip-bottom-left {
+            bottom: 20px;
+            left: 20px;
+        }
+        
+        /* Tabs pour choisir le guide */
+        .tab-container {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .tab:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .tab.active {
+            background-color: #4a6cf7;
+            color: white;
+        }
+        
+        /* Contrôles de navigation entre étapes */
+        .step-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .step-button {
+            padding: 10px 15px;
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .step-button:hover {
+            background-color: #3a5cd7;
+        }
+        
+        .step-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .step-indicator {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Instructions panel */
+        .instructions-panel {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .instructions-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .browser-content {
+                min-height: 300px;
+            }
+            
+            iframe {
+                min-height: 300px;
+            }
+            
+            .tooltip {
+                max-width: 200px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SEO Business Assistant - Navigateur Guidé</h1>
+    </header>
+    
+    <div class="container">
+        <div class="tab-container">
+            <div class="tab active" onclick="changeTab(this, 'gmb')">Google My Business</div>
+            <div class="tab" onclick="changeTab(this, 'search-console')">Search Console</div>
+            <div class="tab" onclick="changeTab(this, 'leboncoin')">Le Bon Coin</div>
+            <div class="tab" onclick="changeTab(this, 'facebook')">Facebook</div>
+        </div>
+        
+        <div class="instructions-panel">
+            <div class="instructions-title">Comment créer votre Google My Business</div>
+            <div class="instructions-content">
+                <p>Suivez ce guide pas à pas pour créer et optimiser votre fiche entreprise Google My Business. Vous allez voir apparaître des conseils en surbrillance pendant que vous naviguez dans l'interface de Google.</p>
+                <p><strong>Étape 1:</strong> Commencez par vous connecter à votre compte Google, puis remplissez les informations de base de votre entreprise.</p>
+            </div>
+        </div>
+        
+        <div class="browser-simulator">
+            <div class="browser-toolbar">
+                <div class="browser-buttons">
+                    <div class="browser-button" style="background-color: #ff6058;"></div>
+                    <div class="browser-button" style="background-color: #ffbd2e;"></div>
+                    <div class="browser-button" style="background-color: #28ca41;"></div>
+                </div>
+                <div class="browser-address" id="browser-url">https://business.google.com/create</div>
+            </div>
+            
+            <div class="browser-content" id="browser-content">
+                <!-- L'iframe sera injecté ici par JavaScript -->
+                
+                <!-- Tooltip d'exemple -->
+                <div class="tooltip tooltip-top-right">
+                    <div class="tooltip-title">Conseil pour le nom d'entreprise</div>
+                    <div class="tooltip-content">
+                        Utilisez le nom officiel exact de votre entreprise. N'ajoutez pas de mots-clés ou de lieu, car cela est contraire aux règles de Google et pourrait entraîner la suspension de votre fiche.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step-controls">
+            <button class="step-button" id="prev-step" disabled>Étape précédente</button>
+            <div class="step-indicator">Étape <span id="current-step">1</span> sur <span id="total-steps">5</span></div>
+            <button class="step-button" id="next-step">Étape suivante</button>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration des guides
+        const guides = {
+            'gmb': {
+                title: 'Comment créer votre Google My Business',
+                steps: [
+                    {
+                        url: 'https://business.google.com/create',
+                        instructions: '<p>Commencez par vous connecter à votre compte Google, puis remplissez les informations de base de votre entreprise.</p>',
+                        tooltip: {
+                            position: 'tooltip-top-right',
+                            title: 'Conseil pour le nom d\'entreprise',
+                            content: 'Utilisez le nom officiel exact de votre entreprise. N\'ajoutez pas de mots-clés ou de lieu, car cela est contraire aux règles de Google et pourrait entraîner la suspension de votre fiche.'
+                        }
+                    },
+                    {
+                        url: 'https://business.google.com/create',
+                        instructions: '<p><strong>Étape 2:</strong> Définissez votre emplacement et votre zone de service. Si vous recevez des clients à votre adresse, sélectionnez "Oui".</p>',
+                        tooltip: {
+                            position: 'tooltip-bottom-left',
+                            title: 'Emplacement et zone de service',
+                            content: 'Si vous êtes un artisan qui se déplace chez les clients, vous pouvez sélectionner "Non" et définir plutôt votre zone de service (villes, codes postaux).'
+                        }
+                    },
+                    {
+                        url: 'https://business.google.com/create',
+                        instructions: '<p><strong>Étape 3:</strong> Choisissez la catégorie qui décrit le mieux votre activité principale. Vous pourrez ajouter des catégories secondaires plus tard.</p>',
+                        tooltip: {
+                            position: 'tooltip-top-right',
+                            title: 'Choix de catégorie',
+                            content: 'La catégorie principale est cruciale pour votre visibilité. Choisissez la plus spécifique possible (ex: "Plombier" plutôt que "Service de réparation").'
+                        }
+                    },
+                    {
+                        url: 'https://business.google.com/create',
+                        instructions: '<p><strong>Étape 4:</strong> Ajoutez votre numéro de téléphone et l\'URL de votre site web pour que les clients puissent vous contacter facilement.</p>',
+                        tooltip: {
+                            position: 'tooltip-bottom-right',
+                            title: 'Coordonnées de contact',
+                            content: 'Utilisez un numéro que vous vérifiez régulièrement. Google pourrait envoyer un code de vérification par SMS ou appel.'
+                        }
+                    },
+                    {
+                        url: 'https://business.google.com/create',
+                        instructions: '<p><strong>Étape 5:</strong> Finalisez votre inscription et choisissez une méthode de vérification. Google proposera généralement l\'envoi d\'une carte postale avec un code.</p>',
+                        tooltip: {
+                            position: 'tooltip-bottom-left',
+                            title: 'Vérification',
+                            content: 'La vérification par carte postale peut prendre jusqu\'à 14 jours. N\'oubliez pas de vérifier votre boîte aux lettres régulièrement.'
+                        }
+                    }
+                ]
+            },
+            'search-console': {
+                title: 'Comment configurer Google Search Console',
+                steps: [
+                    {
+                        url: 'https://search.google.com/search-console',
+                        instructions: '<p>Accédez à Google Search Console et connectez-vous avec votre compte Google.</p>',
+                        tooltip: {
+                            position: 'tooltip-top-right',
+                            title: 'Type de propriété',
+                            content: 'Vous aurez le choix entre "Domaine" (recommandé) ou "Préfixe d\'URL". Le domaine couvre toutes les versions de votre site.'
+                        }
+                    },
+                    // Ajoutez d'autres étapes pour Search Console
+                ]
+            },
+            'leboncoin': {
+                title: 'Création d\'annonces optimisées pour artisans sur Le Bon Coin',
+                steps: [
+                    {
+                        url: 'https://www.leboncoin.fr/deposer-une-annonce',
+                        instructions: '<p>Accédez à la page de création d\'annonce du Bon Coin et connectez-vous à votre compte.</p>',
+                        tooltip: {
+                            position: 'tooltip-top-right',
+                            title: 'Compte professionnel',
+                            content: 'En tant qu\'artisan, utilisez un compte professionnel pour renforcer votre crédibilité et accéder à des options supplémentaires.'
+                        }
+                    },
+                    // Ajoutez d'autres étapes pour Le Bon Coin
+                ]
+            },
+            'facebook': {
+                title: 'Création d\'une page Facebook professionnelle',
+                steps: [
+                    {
+                        url: 'https://www.facebook.com/pages/create',
+                        instructions: '<p>Accédez à la page de création de Pages Facebook et connectez-vous à votre compte personnel.</p>',
+                        tooltip: {
+                            position: 'tooltip-top-right',
+                            title: 'Type de Page',
+                            content: 'Choisissez "Entreprise ou marque" puis sélectionnez la catégorie qui correspond le mieux à votre activité.'
+                        }
+                    },
+                    // Ajoutez d'autres étapes pour Facebook
+                ]
+            }
+        };
+        
+        // Variables de l'état actuel
+        let currentGuide = 'gmb';
+        let currentStep = 0;
+        
+        // Fonction pour changer d'onglet
+        function changeTab(tabElement, guideKey) {
+            // Mettre à jour les classes des onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            tabElement.classList.add('active');
+            
+            // Changer le guide et réinitialiser à la première étape
+            currentGuide = guideKey;
+            currentStep = 0;
+            updateView();
+        }
+        
+        // Fonction pour aller à l'étape suivante
+        function nextStep() {
+            if (currentStep < guides[currentGuide].steps.length - 1) {
+                currentStep++;
+                updateView();
+            }
+        }
+        
+        // Fonction pour aller à l'étape précédente
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateView();
+            }
+        }
+        
+        // Fonction pour mettre à jour la vue
+        function updateView() {
+            const guide = guides[currentGuide];
+            const step = guide.steps[currentStep];
+            
+            // Mettre à jour le titre et les instructions
+            document.querySelector('.instructions-title').textContent = guide.title;
+            document.querySelector('.instructions-content').innerHTML = step.instructions;
+            
+            // Mettre à jour l'URL du navigateur simulé
+            document.getElementById('browser-url').textContent = step.url;
+            
+            // Mettre à jour le contenu du navigateur
+            const browserContent = document.getElementById('browser-content');
+            
+            // Option 1: Utiliser une iframe (fonctionne uniquement si le site autorise l'embedding)
+            // Attention: de nombreux sites bloquent l'affichage dans des iframes pour des raisons de sécurité
+            // browserContent.innerHTML = `<iframe src="${step.url}" title="Navigateur guidé"></iframe>`;
+            
+            // Option 2: Utiliser une capture d'écran ou une simulation (plus fiable)
+            browserContent.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #777;">
+                    [Simulation de l'interface ${step.url}]
+                </div>
+                <div class="tooltip ${step.tooltip.position}">
+                    <div class="tooltip-title">${step.tooltip.title}</div>
+                    <div class="tooltip-content">${step.tooltip.content}</div>
+                </div>
+            `;
+            
+            // Mettre à jour les indicateurs d'étape
+            document.getElementById('current-step').textContent = currentStep + 1;
+            document.getElementById('total-steps').textContent = guide.steps.length;
+            
+            // Activer/désactiver les boutons selon la position
+            document.getElementById('prev-step').disabled = currentStep === 0;
+            document.getElementById('next-step').disabled = currentStep === guide.steps.length - 1;
+        }
+        
+        // Initialiser les event listeners
+        document.getElementById('next-step').addEventListener('click', nextStep);
+        document.getElementById('prev-step').addEventListener('click', prevStep);
+        
+        // Initialiser la vue
+        updateView();
+    </script>
+</body>
+</html>
